@@ -1,6 +1,8 @@
 # theyre-coming-p8
  A space shooter written with the PICO-8 fantasy console.
 
+ ![They're Coming game cartridge](./builds/theyrecoming.p8.png)
+
 ## Approach and features
 
 After messing around with PICO-8 with my kids, I thought I'd take a crack at something. I started following this tutorial series [Lazy Devs Academy - Shmup Playlist](https://www.youtube.com/playlist?list=PLea8cjCua_P3Sfq4XJqNVbd1vsWnh7LZd)...then realized only 12 episodes had been published (I caught up and episode 12 was published literally 1 hour before I started it). At that point I'd included:
