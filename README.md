@@ -11,7 +11,7 @@ After messing around with PICO-8 with my kids, I thought I'd take a crack at som
 - Player ship that moves in two dimensions
 - Player shooting
 - A basic enemy (I created a meteor as well)
-- Collision detection for player, enemies, and weapons
+- Collision detection for player and enemies
 - Sprites for player ship, enemies, etc.
 - Animations for cannon flare, enemy explosions
 - SFX for shooting, explosions
@@ -19,9 +19,12 @@ After messing around with PICO-8 with my kids, I thought I'd take a crack at som
 
 I'd gone through those 12 in a few days and didn't want to wait for the next video to release, so I added a few things like:
 
-- Multiple enemy types with varied movements
+- Enemy collisions with player bullets, explosion animation
+- Multiple enemy types with varied spawning and movements
 - Logic for the meteor so that it isn't destroyed by the basic weapon
+- Weapon cooldown (and support for multiple weapon types in this)
 - Leveling and increasing challenge
+- Ability to start and restart games
 - Slightly more advanced collision detection (to accommodate larger sprites or different hit box sizes)
 - A simple high score (lost when reset)
 
@@ -32,7 +35,7 @@ I don't plan on making this a super polished game, but I would like to continue 
 - Multiple canon types for the primary weapon
 - A secondary weapon (limited quantity of bombs)
 - Power-ups that appear in the starfield
-- Short period of invincibility that follows the player getting hit
+- ~~Short period of invincibility that follows the player getting hit~~
 - High score that's not lost with a basic restart
 - Music
 - More enemy types (practice drawing sprites as well as more advanced movement patterns)
