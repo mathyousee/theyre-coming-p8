@@ -7,6 +7,7 @@ function _init()
  flash=1
  highscore=0
  t=0
+ parts={}
 end
 
 function _draw()
@@ -45,7 +46,7 @@ function startgame()
  lsm=0
  p={s=2,x=64,y=64,dx=0,dy=0,m=0,f={s=4,smin=4,smax=7},fy=4,l=4,nb=0,sw=7,inv=0}
  pb={}
- pw={cd=6,d=1} --player active weapon
+ pw={cd=4,d=1} --player active weapon
  sw={q=2,d=10} --secondary weapon
  score=0 --score
  stars={}
@@ -76,11 +77,11 @@ end
 
 function init_enemies()
  etypes={}
- add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,en=1})
- add(etypes,{s=25,dx=-.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,en=2})
- add(etypes,{s=9,dx=0,dy=2,sw=7,smin=9,smax=13,en=3})
- add(etypes,{s=9,dx=0,dy=3,sw=7,smin=9,smax=13,en=4})
- add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,en=5})
+ add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,hp=10,en=1})
+ add(etypes,{s=25,dx=-.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,hp=8,en=2})
+ add(etypes,{s=9,dx=0,dy=2,sw=7,smin=9,smax=13,hp=1,en=3})
+ add(etypes,{s=9,dx=0,dy=3,sw=7,smin=9,smax=13,hp=1,en=4})
+ add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5})
 
 end
 
@@ -152,10 +153,15 @@ function pshoot() --fire weapon
   --check for collisions
   for b in all (enemies) do
    if collide(i,b) then
-    if b.en>2 then
+    b.hp-=pw.d
+    if b.hp<=0 then
      sfx(1)
      del(enemies,b)
      del(pb,i)
+     for i=1,22 do
+      local spread=4
+      add(parts,{x=b.x,y=b.y,dx=(rnd()-0.5)*spread,dy=(rnd()-0.75)*spread,age=flr(rnd(10)),size=1+rnd(2)})
+     end
      add(flashes,{x=b.x,y=b.y,r=1,dr=1,mr=3})
      score+=100
     else
@@ -235,6 +241,7 @@ function spawnenemies()
      sw=newenemy.sw,
      smin=newenemy.smin,
      smax=newenemy.smax,
+     hp=newenemy.hp,
      en=myrand
     }
    )
@@ -243,6 +250,13 @@ function spawnenemies()
  nextenemy-=1
 end
 
+function explode(expx,expy)
+ local myp={}
+ myp.x=expx
+ myp.y=expy
+ add(parts,myp)
+
+end
 -->8
 --graphics
 
@@ -341,9 +355,6 @@ function drawhud()
   spr(31,i*9+89,1)
  end
 
- for i in all (flashes) do
-  print(i.r)
- end
 
 end
 
@@ -368,6 +379,34 @@ function animateflashes()
   i.r+=i.dr
   if i.r>=i.mr then i.dr=i.dr*-1 end
   if i.r<=0 then del(flashes,i) end
+ end
+end
+
+function do_particles()
+ for myp in all(parts) do
+  --pset(myp.x,myp.y,7)
+  local pc=7
+  
+  if myp.age>20 then pc=5
+  elseif myp.age>15 then pc=2 
+  elseif myp.age>11 then pc=8 
+  elseif myp.age>7 then pc=9
+  elseif myp.age>5 then  pc=10
+  end
+  circfill(myp.x,myp.y,myp.size,pc)
+  myp.x+=myp.dx
+  myp.y+=myp.dy
+  myp.age+=1
+  
+  myp.dx*=0.9
+  myp.dy*=0.9
+  
+  if myp.age>30 then
+   myp.size-=0.5
+   if myp.size<0 then
+    del(parts,myp)
+   end
+  end
  end
 end
 -->8
@@ -454,6 +493,7 @@ function draw_play()
  drawp()
  drawhud()
  drawenemies()
+ do_particles()
  animateflashes()
 end
 
