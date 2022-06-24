@@ -1,43 +1,18 @@
 pico-8 cartridge // http://www.pico-8.com
 version 36
 __lua__
+--they're coming
+--mathyousee
 
 function _init()
- mode="splash"
+ _update=update_splash
+ _draw=draw_splash
  flash=1
  highscore=0
  t=0
  parts={}
+ shwaves={}
 end
-
-function _draw()
-
- if mode=="play" then
-  draw_play()
- elseif mode=="level" then
-  draw_level()
- elseif mode=="splash" then
-  draw_splash()
- elseif mode=="over" then
-  draw_over()
- end
-
-end
-
-function _update()
- 
- if mode=="play" then
-  update_play()
- elseif mode=="level" then
-  update_level()
- elseif mode=="splash" then
-  update_splash()
- elseif mode=="over" then
-  update_over()
- end
- 
-end
-
 
 function startgame()
  cls(0)
@@ -88,8 +63,6 @@ end
 
 -->8
 --player functions
-
---move
 
 function pmove() --move player
 
@@ -154,19 +127,18 @@ function pshoot() --fire weapon
   for b in all (enemies) do
    if collide(i,b) then
     b.hp-=pw.d
+    --smol_shwave(b.x+4,b.y+8)
     if b.hp<=0 then
      sfx(1)
+     explode(i.x+4,i.y+4,4)
+     add(flashes,{x=b.x,y=b.y,r=1,dr=1,mr=3})
+     
      del(enemies,b)
      del(pb,i)
-     for i=1,22 do
-      local spread=4
-      add(parts,{x=b.x,y=b.y,dx=(rnd()-0.5)*spread,dy=(rnd()-0.75)*spread,age=flr(rnd(10)),size=1+rnd(2)})
-     end
-     add(flashes,{x=b.x,y=b.y,r=1,dr=1,mr=3})
+ 
      score+=100
-    else
-     del(pb,i)
     end
+   del(pb,i)
    end
   end
  end
@@ -187,10 +159,31 @@ end
 function pflame() 
  --cycle between flame frames
  animate(p.f)
- --p.f+=1
- --if p.f>7 then p.f=4 end
 end
 
+function do_enemies()
+ for i in all (enemies) do
+  --change sprite & loop
+  i.s+=0.2 
+  if i.s>i.smax then i.s=i.smin end
+  
+  i.x+=i.dx
+  --change y & check visibility
+  i.y+=i.dy 
+  if i.y >128 then del(enemies,i) end
+  if collide(p,i) and p.inv<=0 then 
+   explode(p.x,p.y,3)
+   p.l-=1
+   p.inv=45
+   sfx(1)
+   if i.en>2 then
+    del(enemies,i)
+   end
+  end
+ end
+ 
+
+end
 
 -->8
 --tools
@@ -250,12 +243,47 @@ function spawnenemies()
  nextenemy-=1
 end
 
-function explode(expx,expy)
- local myp={}
- myp.x=expx
- myp.y=expy
- add(parts,myp)
+function explode(expx,expy,expspread)
+ local myflash={}
+ myflash.x=expx
+ myflash.y=expy
+ myflash.dx=0
+ myflash.dy=0
+ myflash.age=0
+ myflash.death=10
+ myflash.size=10
+ add(parts,myflash)
+ 
+ for i=1,22 do
+	 local myp={}
+	 myp.x=expx
+	 myp.y=expy
+	 myp.dx=(rnd()-0.5)*expspread
+	 myp.dy=(rnd()-0.75)*expspread
+	 myp.age=flr(rnd(10))
+	 myp.death=30
+	 myp.size=1+rnd(2)
+	 add(parts,myp)
+ end
 
+end
+
+function smol_shwave(shx,shy)
+ local mysw={}
+ mysw.x=shx
+ mysw.y=shy
+ mysw.r=1
+ mysw.tr=5
+ add(shwaves,mysw) 
+end
+
+function big_shwave(shx,shy)
+ local mysw={}
+ mysw.x=shx
+ mysw.y=shy
+ mysw.r=1
+ mysw.tr=30
+ add(shwaves,mysw) 
 end
 -->8
 --graphics
@@ -290,11 +318,7 @@ function animatestars()
  end
 end
 
---player
-
 function drawp()
- 
- 
  if p.inv<=0 then
   drawsprite(p)
   spr(p.f.s,p.x,p.y+p.fy)--flame
@@ -382,10 +406,21 @@ function animateflashes()
  end
 end
 
+function do_shwaves()
+ for mysw in all (shwaves) do
+  circ(mysw.x,mysw.y,mysw.r,7)
+  mysw.r+=1
+  if mysw.r>mysw.tr then
+   del(shwaves,mysw)
+  end
+ end
+end
+
 function do_particles()
  for myp in all(parts) do
   --pset(myp.x,myp.y,7)
   local pc=7
+  
   
   if myp.age>20 then pc=5
   elseif myp.age>15 then pc=2 
@@ -401,7 +436,7 @@ function do_particles()
   myp.dx*=0.9
   myp.dy*=0.9
   
-  if myp.age>30 then
+  if myp.age>myp.death then
    myp.size-=0.5
    if myp.size<0 then
     del(parts,myp)
@@ -419,24 +454,32 @@ function update_play()
  pshoot()
  pflame()
  animatestars()
- update_enemies()
+ do_enemies()
  if levelcountdown>=0 then
   levelcountdown-=1
   spawnenemies()
  elseif #enemies > 0 then
-  
+  --keep playing
  else
-  mode="level"
+--  mode="level"
+  _update=update_level
+  _draw=draw_level
   l+=1
   init_level()
  end
  if p.inv >0 then p.inv-=1 end --invincible countdown
- if p.l<=0 then mode="over" end
+ if p.l<=0 then 
+--  mode="over" 
+  _update=update_over
+  _draw=draw_over
+ end
 end
 
 function update_level()
  if levelcountdown <=0 then
-  mode="play"
+--  mode="play"
+  _update=update_play
+  _draw=draw_play
   levelcountdown=300
  else
   animatestars()
@@ -446,40 +489,23 @@ end
 
 function update_splash()
  if btnp(4) or btnp(5) or btnp(⬅️) or btnp(⬆️) or btnp(➡️) or btnp(⬇️) then
-  mode="level"
+--  mode="level"  
+  _update=update_level
+  _draw=draw_level
   startgame()
+
  end
 end
 
 function update_over()
  if score > highscore then highscore=score end
- if btnp(⬅️) and btnp(➡️) then
-  mode="splash"
+ if btn(⬅️) and btn(➡️) then
+--  mode="splash"
+  _update=update_splash
+  _draw=draw_splash
  end
 end
 
-function update_enemies()
- for i in all (enemies) do
-  --change sprite & loop
-  i.s+=0.2 
-  if i.s>i.smax then i.s=i.smin end
-  --change x
-  i.x+=i.dx
-  --change y & check visibility
-  i.y+=i.dy 
-  if i.y >128 then del(enemies,i) end
-  if collide(p,i) and p.inv<=0 then 
-   p.l-=1
-   p.inv=45
-   sfx(1)
-   if i.en>2 then
-    del(enemies,i)
-   end
-  end
- end
- 
-
-end
 
 
 
@@ -493,6 +519,7 @@ function draw_play()
  drawp()
  drawhud()
  drawenemies()
+ do_shwaves()
  do_particles()
  animateflashes()
 end
