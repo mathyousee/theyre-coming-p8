@@ -32,17 +32,15 @@ I'd gone through those 12 in a few days and didn't want to wait for the next vid
 
 I don't plan on making this a super polished game, but I would like to continue with the tutorial (even though I have strayed from the path). Partially because Krystian is fun to watch and I love his silly but dilligent approach. I also like the idea of having a few enhancements to poke around at if the mood strikes me. As of now this includes:
 
-- Multiple canon types for the primary weapon
-- A secondary weapon (limited quantity of bombs)
-- Power-ups that appear in the starfield
-- ~~Short period of invincibility that follows the player getting hit~~
+- ~~Multiple canon types for the primary weapon~~ (complete)
+- A secondary weapon (limited quantity of bombs) (next step: non-pew pew ideas)
+- Power-ups that appear in the starfield (have draw/update logic, need spawning plan)
+- ~~Short period of invincibility that follows the player getting hit~~ (complete)
 - High score that's not lost with a basic restart
 - Music
 - More enemy types (practice drawing sprites as well as more advanced movement patterns)
-- More elegant collision detection.
+- More elegant collision detection
 - Cooler start screen
-
-There's some commented-out code as well as unused sprites in the sprite sheet.
 
 ## New to PICO-8?
 
