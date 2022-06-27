@@ -36,7 +36,7 @@ I don't plan on making this a super polished game, but I would like to continue 
 - A secondary weapon (limited quantity of bombs) (next step: non-pew pew ideas)
 - Power-ups that appear in the starfield (have draw/update logic, need spawning plan)
 - ~~Short period of invincibility that follows the player getting hit~~ (complete)
-- High score that's not lost with a basic restart
+- ~~High score that's not lost with a basic restart~~ (complete)
 - Music
 - More enemy types (practice drawing sprites as well as more advanced movement patterns)
 - More elegant collision detection
