@@ -382,7 +382,10 @@ function up_bombs()
   --check for collision
   for en in all (enemies) do
    if collideb(en,myb) then
+    
+    --add points
     del(enemies,en)
+    
    end
   end
  end
