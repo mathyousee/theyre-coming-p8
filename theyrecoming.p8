@@ -7,8 +7,9 @@ __lua__
 function _init()
  _update=update_splash
  _draw=draw_splash
+ cartdata("usee_theyrecoming")
+ highscore=dget(0)
  flash=1
- highscore=0
  t=0
  parts={}
  shwaves={}
@@ -561,7 +562,10 @@ function update_splash()
 end
 
 function update_over()
- if score > highscore then highscore=score end
+ if score > highscore then 
+  highscore=score
+  dset(0,highscore)
+ end
  if btn(⬅️) and btn(➡️) then
 --  mode="splash"
   _update=update_splash
