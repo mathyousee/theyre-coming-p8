@@ -13,6 +13,8 @@ function _init()
  t=0
  parts={}
  shwaves={}
+ bombs={}
+--  add(bombs,{x=64,y=64,r=10,t=0,tr=50,c=7})
  stars={}
   initstarfield()
  weapons={}
@@ -266,6 +268,27 @@ function collide(a,b)
 
 end
 
+function collideb(a,c)
+ --check if dist( allaxy vs cxy)< is c.r
+ 
+ local closest_x=0 closest_y=0
+ local sa=0 sb=0 sc=0
+ 
+ closest_x=mid(a.x,a.x+a.sw,c.x)
+ closest_y=mid(a.y,a.y+a.sw,c.y)
+ if closest_x==c.x and closest_y==c.y then 
+  return true 
+ else
+  sa=(closest_x-c.x)^2
+  sb=(closest_y-c.y)^2
+  sc=sqrt(sa+sb)
+  if sc<c.r then 
+   return true
+  end
+ end
+ return false
+end
+
 function spawnenemies()
  if nextenemy<=0 then
    local myrand=ceil(rnd(5))
@@ -339,6 +362,33 @@ function gen_powerup(pux,puy)
  ut=utypes[r]
  add(powerups,{x=pux,y=puy,sp=ut.sp,sw=ut.sw,utype=ut.utype,id=ut.id})
 end
+
+function blow_bomb(bbx,bby,bbc)
+ local mybb={}
+ mybb.x=bbx
+ mybb.y=bby
+ mybb.r=1
+ mybb.tr=10
+ mybb.c=bbc
+ add(bombs,mybb) 
+end
+
+function up_bombs()
+ for myb in all (bombs) do
+  --myb.r+=1
+  if myb.r>myb.tr then
+   del(bombs,myb)
+  end
+  --check for collision
+  for en in all (enemies) do
+   if collideb(en,myb) then
+    del(enemies,en)
+   end
+  end
+ end
+end
+
+
 -->8
 --graphics
 
@@ -508,6 +558,14 @@ function do_particles()
   end
  end
 end
+
+function draw_bombs()
+ for myb in all (bombs) do
+  circ(myb.x,myb.y,myb.r,myb.c,myb.c)
+ end
+end
+
+
 -->8
 --update states
 
@@ -519,6 +577,7 @@ function update_play()
  pflame()
  animatestars()
  do_enemies()
+ up_bombs()
  if levelcountdown>=0 then
   levelcountdown-=1
   spawnenemies()
@@ -589,6 +648,7 @@ function draw_play()
  do_shwaves()
  do_particles()
  animateflashes()
+ draw_bombs()
  drawpow()
  
  --[[debug
