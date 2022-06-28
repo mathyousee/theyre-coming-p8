@@ -1,7 +1,7 @@
 # theyre-coming-p8
  A space shooter written with the PICO-8 fantasy console.
 
- ![They're Coming game cartridge](./builds/theyrecoming.v2.p8.png)
+ ![They're Coming game cartridge](./theyrecoming.p8.png)
 
 ## Approach and features
 
