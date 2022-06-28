@@ -608,6 +608,9 @@ function update_level()
   _draw=draw_play
   levelcountdown=300
  else
+  pmove()
+  pshoot()
+  pflame()
   animatestars()
   levelcountdown-=1
  end
@@ -665,6 +668,8 @@ end
 function draw_level()
  cls(0)
  drawstarfield()
+ drawp()
+ drawhud()
  print("get ready",45,40,12)
  print("level "..l,48,80,blink())
 end
