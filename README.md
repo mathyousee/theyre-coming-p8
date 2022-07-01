@@ -34,11 +34,15 @@ I don't plan on making this a super polished game, but I would like to continue 
 
 - ~~Multiple canon types for the primary weapon~~ (complete)
 - A secondary weapon (limited quantity of bombs) (next step: non-pew pew ideas)
-- Power-ups that appear in the starfield (have draw/update logic, need spawning plan)
+- ~~Power-ups that appear in the starfield (have draw/update logic, need spawning plan)~~
+- Better sprites for power ups
 - ~~Short period of invincibility that follows the player getting hit~~ (complete)
 - ~~High score that's not lost with a basic restart~~ (complete)
-- Music
+- ~~Music~~
+- Gameplay/level music
 - More enemy types (practice drawing sprites as well as more advanced movement patterns)
+- Combining movement patterns and level design
+- Final boss
 - More elegant collision detection
 - Cooler start screen
 
