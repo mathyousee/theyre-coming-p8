@@ -25,7 +25,7 @@ I'd gone through those 12 in a few days and didn't want to wait for the next vid
 - Weapon cooldown (and support for multiple weapon types in this)
 - Leveling and increasing challenge
 - Ability to start and restart games
-- Slightly more advanced collision detection (to accommodate larger sprites or different hit box sizes)
+- Slightly more advanced collision detection (to accommodate larger sprites or different hit box sizes) (Krystian refactored his code in a later episode)
 - A simple high score (lost when reset)
 
 ## Ideas/further exploration
@@ -45,6 +45,7 @@ I don't plan on making this a super polished game, but I would like to continue 
 - Final boss
 - More elegant collision detection
 - Cooler start screen
+- More interesting enemy patterns
 
 ## New to PICO-8?
 
