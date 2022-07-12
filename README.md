@@ -40,8 +40,11 @@ I don't plan on making this a super polished game, but I would like to continue 
 - ~~High score that's not lost with a basic restart~~ (complete)
 - ~~Music~~
 - Gameplay/level music
-- More enemy types (practice drawing sprites as well as more advanced movement patterns)
+- More enemy types (practice drawing sprites)
+- Enemy movement system
+- More advanced movement patterns
 - Combining movement patterns and level design
+- More satisfying difficulty increases
 - Final boss
 - More elegant collision detection
 - Cooler start screen
