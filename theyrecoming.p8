@@ -60,11 +60,6 @@ function startgame()
 end
 
 function init_level()
--- p.x=64
--- p.y=64
--- p.dx=0
--- p.dy=0
--- p.inv=0
  lsm+=.2
  pb={}
  enemies={}
@@ -204,9 +199,7 @@ end
 
 function pflame() 
  --cycle between flame frames
- if t%10==0 then
   animate(p.f)
- end
 end
 
 function do_enemies()
@@ -677,8 +670,6 @@ function draw_play()
  draw_bombs()
  drawpow()
  
- print(p.f.can)
- print(p.f.s)
  --[[debug
  print("pwc"..pw.swc,7)
  for z in all (swaves) do
