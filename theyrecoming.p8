@@ -63,7 +63,6 @@ function init_level()
  lsm+=.2
  pb={}
  enemies={}
--- flashes={}
  powerups={}
 -- add(powerups,{x=30,y=30,sp=19,sw=8,utype="pw",id=3})
 -- add(powerups,{x=50,y=50,sp=21,sw=8,utype="sq",id=3})
@@ -75,7 +74,7 @@ end
 
 
 -->8
---player functions
+--play functions
 
 function pmove() --move player
 
@@ -86,22 +85,22 @@ function pmove() --move player
  p.fy=4
  
  --check left
- if btn(0) then
+ if btn(⬅️) then
   p.dx=-2
   p.s=1
  end
  --check right
- if btn(1) then
+ if btn(➡️) then
   p.dx=2
   p.s=3
  end
  --check down
- if btn(3) then
+ if btn(⬇️) then
   p.dy=2
   p.fy=2
  end
  --check up
- if btn(2) then
+ if btn(⬆️) then
   p.dy=-2
   p.fy=6
  end
@@ -233,6 +232,34 @@ function set_pweapon(wid)
  for i in all (weapons) do
   if i.id==wid then
    pw={cd=i.cd,d=i.d,swc=i.swc,sp=i.sp}
+  end
+ end
+end
+
+function blow_bomb(bbx,bby,bbc)
+ local mybb={}
+ mybb.x=bbx
+ mybb.y=bby
+ mybb.r=1
+ mybb.tr=10
+ mybb.c=bbc
+ add(bombs,mybb) 
+end
+
+function up_bombs()
+ for myb in all (bombs) do
+  --myb.r+=1
+  if myb.r>myb.tr then
+   del(bombs,myb)
+  end
+  --check for collision
+  for en in all (enemies) do
+   if collideb(en,myb) then
+    
+    --add points
+    del(enemies,en)
+    
+   end
   end
  end
 end
@@ -371,33 +398,8 @@ function gen_powerup(pux,puy)
  add(powerups,{x=pux,y=puy,sp=ut.sp,sw=ut.sw,utype=ut.utype,id=ut.id})
 end
 
-function blow_bomb(bbx,bby,bbc)
- local mybb={}
- mybb.x=bbx
- mybb.y=bby
- mybb.r=1
- mybb.tr=10
- mybb.c=bbc
- add(bombs,mybb) 
-end
 
-function up_bombs()
- for myb in all (bombs) do
-  --myb.r+=1
-  if myb.r>myb.tr then
-   del(bombs,myb)
-  end
-  --check for collision
-  for en in all (enemies) do
-   if collideb(en,myb) then
-    
-    --add points
-    del(enemies,en)
-    
-   end
-  end
- end
-end
+
 
 
 -->8
