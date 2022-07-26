@@ -52,7 +52,7 @@ function init_level()
 -- add(powerups,{x=90,y=90,sp=22,sw=8,utype="life"})
  nextenemy=30
  levelcountdown=120
- myextra=mkobj(utypes[2])
+ mytest=mkobj({s=pw.s,x=p.x,y=p.y})
 end
 
 
@@ -148,7 +148,7 @@ function pshoot() --fire weapon
  --check for more shots
   
  if btn(5) and p.nb <=0  then
-  add(pb,{s=pw.s,x=p.x,y=p.y,sw=7,sh=7,swc=pw.swc})
+  add(pb,mkobj({s=pw.s,x=p.x,y=p.y}))
   p.m=4
   p.nb=pw.cd
   sfx(0)
@@ -734,14 +734,19 @@ end
 function mkobj(tmpl)
  tmpl=tmpl or {}
  local myobj={}
+
  if tmpl.s then myobj.s=tmpl.s 
   else myobj.s=30 end
+ if tmpl.x then myobj.x=tmpl.x
+  else myobj.x=0 end 
+ if tmpl.y then myobj.y=tmpl.y
+  else myobj.y=0 end 
  if tmpl.dx then myobj.dx=tmpl.dx
   else myobj.dx=0 end 
  if tmpl.dy then myobj.dy=tmpl.dy
   else myobj.dy=0 end 
- if tmpl.sw then myobj.sw=tmpl.sw
-  else myobj.sw=7 end 
+ if tmpl.sw then myobj.sw=tmpl.sw 
+  else myobj.sw=7 end
  if tmpl.sh then myobj.sh=tmpl.sh
   else myobj.sh=7 end 
  if tmpl.hp then myobj.hp=tmpl.hp end 
