@@ -20,27 +20,10 @@ function _init()
  shwaves={}
  bombs={}
 --  add(bombs,{x=64,y=64,r=10,t=0,tr=50,c=7})
- stars={}
-  initstarfield()
- weapons={}
-  add(weapons,{cd=4,d=1,sp=33,swc=10,id=1})
-  add(weapons,{cd=2,d=1,sp=34,swc=10,id=2})
-  add(weapons,{cd=8,d=2,sp=35,swc=9,id=3})
-  add(weapons,{cd=12,d=5,sp=36,swc=8,id=4})
- etypes={}
-	 add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,hp=10,en=1,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
-	 add(etypes,{s=184,dx=-.15,dy=3,sw=7,sh=7,smin=184,smax=187,hp=8,en=2,san={184,184,184,184,185,185,185,185,186,186,186,186,187,187,187,187}})
-	 add(etypes,{s=9,dx=0,dy=2,sw=7,smin=9,smax=13,hp=1,en=3,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
-	 add(etypes,{s=9,dx=0,dy=2.5,sw=7,smin=9,smax=13,hp=1,en=4,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
-	 add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
-	 add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
- utypes={}
-  add(utypes,{sp=17,utype="pw",sw=8,id=1})
-  add(utypes,{sp=18,utype="pw",sw=8,id=2})
-  add(utypes,{sp=19,utype="pw",sw=8,id=3})
-  add(utypes,{sp=20,utype="pw",sw=8,id=4})
-  add(utypes,{sp=21,utype="sq",sw=8,id=0})
-  add(utypes,{sp=22,utype="life",sw=8,id=0})
+ initstarfield()
+ initweapons()
+ initetypes()
+ initutypes()
 
 end
 
@@ -49,7 +32,7 @@ function startgame()
  t=0
  l=1
  lsm=0
- p={s=2,x=64,y=64,dx=0,dy=0,m=0,f={s=4,smin=4,smax=7,san={4,5,6,7},can=1},fy=4,l=4,nb=0,sw=7,inv=0}
+ initplayer()
  pb={}
  set_pweapon(1) --player active weapon
  sw={q=2,d=10} --secondary weapon
@@ -69,6 +52,7 @@ function init_level()
 -- add(powerups,{x=90,y=90,sp=22,sw=8,utype="life"})
  nextenemy=30
  levelcountdown=120
+ myextra=mkobj(utypes[2])
 end
 
 
@@ -106,8 +90,9 @@ function pmove() --move player
  end
 
  --move horizontally and vertically
- p.x+=p.dx
- p.y+=p.dy
+-- p.x+=p.dx
+-- p.y+=p.dy
+ move(p)
  
  --don't go off the screen
  if(p.x>=120) then
@@ -163,7 +148,7 @@ function pshoot() --fire weapon
  --check for more shots
   
  if btn(5) and p.nb <=0  then
-  add(pb,{s=pw.sp,x=p.x,y=p.y,sw=7,sh=7,swc=pw.swc})
+  add(pb,{s=pw.s,x=p.x,y=p.y,sw=7,sh=7,swc=pw.swc})
   p.m=4
   p.nb=pw.cd
   sfx(0)
@@ -207,9 +192,7 @@ function do_enemies()
 --  i.s+=0.2 
 --  if i.s>i.smax then i.s=i.smin end
   animate(i)
-  i.x+=i.dx
-  --change y & check visibility
-  i.y+=i.dy 
+  move(i)
   if i.y >128 then del(enemies,i) end
   if collide(p,i) and p.inv<=0 then 
    explode(p.x,p.y,3)
@@ -231,7 +214,7 @@ end
 function set_pweapon(wid)
  for i in all (weapons) do
   if i.id==wid then
-   pw={cd=i.cd,d=i.d,swc=i.swc,sp=i.sp}
+   pw={cd=i.cd,d=i.d,swc=i.swc,s=i.s}
   end
  end
 end
@@ -266,13 +249,21 @@ end
 -->8
 --tools
 
-function drawsprite(ispr)
- spr(ispr.s,ispr.x,ispr.y)
+function drawsprite(myspr)
+ local sprs=myspr.s
+ local sprx=myspr.x
+ local spry=myspr.y
+ 
+ 
+ spr(sprs,sprx,spry)
+end
+
+function move(thing)
+ thing.x+=thing.dx
+ thing.y+=thing.dy
 end
 
 function animate(thing)
- --thing.s+=1
- --if thing.s>thing.smax then thing.s=thing.smin end
  thing.can+=1
  if thing.can>#thing.san then thing.can=1 end
  thing.s=thing.san[thing.can]
@@ -302,6 +293,7 @@ function collide(a,b)
 end
 
 function collideb(a,c)
+ --check for collision in a radius
  --check if dist( allaxy vs cxy)< is c.r
  
  local closest_x=0 closest_y=0
@@ -395,7 +387,7 @@ function gen_powerup(pux,puy)
  local r=0 ut={}
  r=ceil(rnd(4+4-p.l))
  ut=utypes[r]
- add(powerups,{x=pux,y=puy,sp=ut.sp,sw=ut.sw,utype=ut.utype,id=ut.id})
+ add(powerups,{x=pux,y=puy,s=ut.s,sw=ut.sw,utype=ut.utype,id=ut.id})
 end
 
 
@@ -408,6 +400,8 @@ end
 --starfield
 
 function initstarfield()
+ stars={}
+
  for i=1,100 do
   add(stars,{x=flr(rnd(127)),y=flr(rnd(127)),s=rnd(2)+0.5})
  end
@@ -536,7 +530,7 @@ end
 function drawpow()
  for pow in all (powerups) do
   if sin(time())>0 then
-    spr(pow.sp,pow.x,pow.y)
+    spr(pow.s,pow.x,pow.y)
   else
     spr(16,pow.x,pow.y)
   end
@@ -702,6 +696,62 @@ function draw_over()
  print("your score was "..score)
  print("press ⬅️➡️ buttons to restart",6,80,blink())
 end
+-->8
+--object definitions
+
+function initweapons()
+ weapons={}
+ add(weapons,{cd=4,d=1,s=33,swc=10,id=1})
+ add(weapons,{cd=2,d=1,s=34,swc=10,id=2})
+ add(weapons,{cd=8,d=2,s=35,swc=9,id=3})
+ add(weapons,{cd=12,d=5,s=36,swc=8,id=4})
+end
+
+function initutypes()
+ utypes={}
+ add(utypes,{s=17,utype="pw",sw=8,id=1})
+ add(utypes,{s=18,utype="pw",sw=8,id=2})
+ add(utypes,{s=19,utype="pw",sw=8,id=3})
+ add(utypes,{s=20,utype="pw",sw=8,id=4})
+ add(utypes,{s=21,utype="sq",sw=8,id=0})
+ add(utypes,{s=22,utype="life",sw=8,id=0})
+end
+
+function initplayer()
+ p={s=2,x=64,y=64,dx=0,dy=0,m=0,f={s=4,smin=4,smax=7,san={4,5,6,7},can=1},fy=4,l=4,nb=0,sw=7,inv=0}
+end
+
+function initetypes()
+ etypes={}
+ add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,hp=10,en=1,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
+ add(etypes,{s=184,dx=-.15,dy=3,sw=7,sh=7,smin=184,smax=187,hp=2,en=2,san={184,184,184,184,185,185,185,185,186,186,186,186,187,187,187,187}})
+ add(etypes,{s=9,dx=0,dy=2,sw=7,smin=9,smax=13,hp=1,en=3,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
+ add(etypes,{s=9,dx=0,dy=2.5,sw=7,smin=9,smax=13,hp=1,en=4,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
+ add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
+ add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
+end
+
+function mkobj(tmpl)
+ tmpl=tmpl or {}
+ local myobj={}
+ if tmpl.s then myobj.s=tmpl.s 
+  else myobj.s=30 end
+ if tmpl.dx then myobj.dx=tmpl.dx
+  else myobj.dx=0 end 
+ if tmpl.dy then myobj.dy=tmpl.dy
+  else myobj.dy=0 end 
+ if tmpl.sw then myobj.sw=tmpl.sw
+  else myobj.sw=7 end 
+ if tmpl.sh then myobj.sh=tmpl.sh
+  else myobj.sh=7 end 
+ if tmpl.hp then myobj.hp=tmpl.hp end 
+ if tmpl.en then myobj.en=tmpl.sw end 
+ if tmpl.san then myobj.san=tmpl.san
+  else myobj.san={myobj.s} end 
+ 
+ return myobj
+end
+
 __gfx__
 00000000033000000003300000000330000000000000000000000000000000000099990000033000000330000003300000033000000000000ee00ee008800880
 0000000003300000000330000000033000000000000000000000000000000000099999900033330000333300003333000033330000000000e00ee00e88888888
