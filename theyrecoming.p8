@@ -757,24 +757,16 @@ function mkobj(tmpl)
  tmpl=tmpl or {}
  local myobj={}
 
- if tmpl.s then myobj.s=tmpl.s 
-  else myobj.s=30 end
- if tmpl.x then myobj.x=tmpl.x
-  else myobj.x=0 end 
- if tmpl.y then myobj.y=tmpl.y
-  else myobj.y=0 end 
- if tmpl.dx then myobj.dx=tmpl.dx
-  else myobj.dx=0 end 
- if tmpl.dy then myobj.dy=tmpl.dy
-  else myobj.dy=0 end 
- if tmpl.sw then myobj.sw=tmpl.sw 
-  else myobj.sw=7 end
- if tmpl.sh then myobj.sh=tmpl.sh
-  else myobj.sh=7 end 
- if tmpl.hp then myobj.hp=tmpl.hp end 
- if tmpl.en then myobj.en=tmpl.sw end 
- if tmpl.san then myobj.san=tmpl.san
-  else myobj.san={myobj.s} end 
+ myobj.s=tmpl.s or 30 --sprite
+ myobj.x=tmpl.x or 0 
+ myobj.y=tmpl.y or 0
+ myobj.dx=tmpl.dx or 0
+ myobj.dy=tmpl.dy or 0
+ myobj.sw=tmpl.sw or 7 --s width 
+ myobj.sh=tmpl.sh or 7 --s height
+ myobj.hp=tmpl.hp or 0 --hitpoints
+ myobj.en=tmpl.en or 0 --enemy number
+ myobj.san=tmpl.san or {myobj.s} --sprite animation pattern
  
  return myobj
 end
