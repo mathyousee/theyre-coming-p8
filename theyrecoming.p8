@@ -90,9 +90,6 @@ function pmove() --move player
   p.fy=6
  end
 
- --move horizontally and vertically
--- p.x+=p.dx
--- p.y+=p.dy
  move(p)
  
  --don't go off the screen
@@ -155,10 +152,6 @@ function pshoot() --fire weapon
   sfx(0)
  end
 
- --[[debug
- if btnp(4) then
-  gen_powerup(p.x,p.y-50)
- end]]
 
  --check for powerups
 
@@ -191,6 +184,7 @@ function do_enemies()
  for i in all (enemies) do
   animate(i)
   move(i)
+  pathfind(i)
   --if flr(i.y)==20 then fire(i,1,4,{s=49}) end
   if i.y >128 then del(enemies,i) end
   if collide(p,i) and p.inv<=0 then 
