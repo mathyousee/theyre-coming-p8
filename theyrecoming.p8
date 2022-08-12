@@ -40,14 +40,15 @@ function startgame()
  score=0 --score
  enemies={}
  flashes={}
+ pb={}
+ powerups={}
  init_level()
 end
 
 function init_level()
  lsm+=.2
- pb={}
  enemies={}
- powerups={}
+
 -- add(powerups,{x=30,y=30,sp=19,sw=8,utype="pw",id=3})
 -- add(powerups,{x=50,y=50,sp=21,sw=8,utype="sq",id=3})
 -- add(powerups,{x=90,y=90,sp=22,sw=8,utype="life"})
@@ -57,7 +58,12 @@ function init_level()
 end
 
 
-
+--[[ en patterns
+ 
+ straight line
+ to point, circle twice, straight
+   
+  ]]
 -->8
 --play functions
 
@@ -128,7 +134,7 @@ function pshoot() --fire weapon
      explode(i.x+4,i.y+4,4)
      add(flashes,{x=b.x,y=b.y,r=1,dr=1,mr=3})
      
-     if rnd(100)>90 then
+     if b.en==1 then
       gen_powerup(b.x,b.y)
      end
      
@@ -152,9 +158,9 @@ function pshoot() --fire weapon
   sfx(0)
  end
 
-
+end
  --check for powerups
-
+function detectpow()
  for pu in all (powerups) do
   if collide(p,pu) then
    do_powerup(pu)
@@ -166,7 +172,8 @@ end
 
 function do_powerup(pow)
  if pow.utype=="pw" then
-  set_pweapon(pow.id)
+  --set_pweapon(pow.id)
+  set_pweapon(pw.id+1)
   sfx(4)
  elseif pow.utype=="sq" then
  elseif pow.utype=="life" then
@@ -184,7 +191,6 @@ function do_enemies()
  for i in all (enemies) do
   animate(i)
   move(i)
-  pathfind(i)
   --if flr(i.y)==20 then fire(i,1,4,{s=49}) end
   if i.y >128 then del(enemies,i) end
   if collide(p,i) and p.inv<=0 then 
@@ -192,7 +198,7 @@ function do_enemies()
    p.l-=1
    p.inv=45
    --reset weapon
-   do_powerup(utypes[1])
+   set_pweapon(1)
    sfx(1)
    if i.en>2 then
     del(enemies,i)
@@ -216,7 +222,7 @@ end
 function set_pweapon(wid)
  for i in all (weapons) do
   if i.id==wid then
-   pw={cd=i.cd,d=i.d,swc=i.swc,s=i.s}
+   pw={cd=i.cd,d=i.d,swc=i.swc,s=i.s,id=i.id}
   end
  end
 end
@@ -258,6 +264,11 @@ function drawsprite(myspr)
  
  
  spr(sprs,sprx,spry)
+end
+
+function pathfind(thing)
+ --entype 2 - dxdy at player
+ --entype 3 - 
 end
 
 function move(thing)
@@ -404,6 +415,8 @@ function fire(src,ang,spd,tmpl)
  sfx(20)
   
 end
+
+
 
 
 
@@ -601,6 +614,7 @@ function update_play()
  animatestars()
  do_enemies()
  up_bombs()
+ detectpow()
  if levelcountdown>=0 then
   levelcountdown-=1
   spawnenemies()
@@ -626,15 +640,16 @@ end
 
 function update_level()
  if levelcountdown <=0 then
---  mode="play"
   _update=update_play
   _draw=draw_play
   levelcountdown=300
  else
+  t+=1
   pmove()
   animateflashes()
-  --pshoot()
+  pshoot()
   pflame()
+  detectpow()
   animatestars()
   levelcountdown-=1
  end
@@ -697,6 +712,7 @@ function draw_level()
  drawhud()
  print("get ready",45,40,12)
  print("level "..l,48,80,blink())
+ drawpow()
 end
 
 function draw_splash()
@@ -718,9 +734,9 @@ end
 function initweapons()
  weapons={}
  add(weapons,{cd=4,d=1,s=33,swc=10,id=1,pat=1}) --single
- add(weapons,{cd=2,d=1,s=34,swc=10,id=2,pat=2}) --two-wide
- add(weapons,{cd=8,d=2,s=35,swc=9,id=3,pat=3})  --spread
- add(weapons,{cd=12,d=5,s=36,swc=8,id=4,pat=1}) --
+ add(weapons,{cd=2,d=1,s=34,swc=10,id=2,pat=2}) --
+ add(weapons,{cd=2,d=2,s=35,swc=9,id=3,pat=3})  --
+ add(weapons,{cd=8,d=5,s=36,swc=8,id=4,pat=1}) --
 end
 
 function initutypes()
@@ -734,17 +750,18 @@ function initutypes()
 end
 
 function initplayer()
- p={s=2,x=64,y=64,dx=0,dy=0,m=0,f={s=4,smin=4,smax=7,san={4,5,6,7},can=1},fy=4,l=4,nb=0,sw=7,inv=0}
+ p={s=2,x=64,y=64,dx=0,dy=0,m=0,f={s=4,san={4,5,6,7},can=1},fy=4,l=4,nb=0,sw=7,inv=0}
 end
 
 function initetypes()
  etypes={}
- add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,smin=25,smax=28,hp=10,en=1,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
- add(etypes,{s=184,dx=-.15,dy=3,sw=7,sh=7,smin=184,smax=187,hp=2,en=2,san={184,184,184,184,185,185,185,185,186,186,186,186,187,187,187,187}})
- add(etypes,{s=9,dx=0,dy=2,sw=7,smin=9,smax=13,hp=1,en=3,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
- add(etypes,{s=9,dx=0,dy=2.5,sw=7,smin=9,smax=13,hp=1,en=4,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
- add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
- add(etypes,{s=41,dx=0,dy=3.5,sw=7,smin=41,smax=44,hp=2,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
+
+ add(etypes,{s=25,dx=.15,dy=1.5,sw=7,sh=7,hp=10,en=1,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
+ add(etypes,{s=184,dx=-.15,dy=3,sw=7,sh=7,hp=1,en=2,san={184,184,184,184,185,185,185,185,186,186,186,186,187,187,187,187}})
+ add(etypes,{s=9,dx=0,dy=2,sw=7,hp=1,en=3,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
+ add(etypes,{s=9,dx=0,dy=2.5,sw=7,hp=1,en=4,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
+ add(etypes,{s=41,dx=0,dy=3.5,sw=7,hp=1,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
+ add(etypes,{s=41,dx=0,dy=3.5,sw=7,hp=1,en=5,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
 end
 
 function mkobj(tmpl)
