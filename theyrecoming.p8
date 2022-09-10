@@ -7,7 +7,6 @@ __lua__
 --todo
 ------
 --game win screen
---enemies float both direction
 --add boss
 --difficulty curve
 
@@ -20,6 +19,7 @@ function _init()
  highscore=dget(0)
  flash=1
  t=0
+ horiz=7
  parts={}
  shwaves={}
  ebuls={}
@@ -201,7 +201,13 @@ end
 function do_enemies()
  for i in all (enemies) do
   animate(i)
-  move(i)
+  if bossbit then 
+   move_bossbit(i)
+  else
+   move(i) 
+  end
+
+  
   --if flr(i.y)==20 then fire(i,1,4,{s=49}) end
   if i.y >128 then del(enemies,i) end
   if collide(p,i) and p.inv<=0 then 
@@ -349,7 +355,7 @@ function spawnenemies()
     {
      x=rnd(120),
      y=-10,
-     dx=newenemy.dx+lsm,
+     dx=sin(t/horiz)*(newenemy.dx+lsm),
      dy=newenemy.dy+lsm,
      s=newenemy.s,
      sw=newenemy.sw,
@@ -368,25 +374,58 @@ end
 
 function spawnboss()
 
-   boss=
-    {
-     x=10,
-     y=10,
-     dx=0,
-     dy=0,
-     s=199,
-     sw=63,
-     smin=199,
-     smax=199,
-     hp=30,
-     san={199},
-     can=1,
-     boss=true
-    }
+ boss=
+  {
+   x=75,
+   y=10,
+   dx=0,
+   dy=0,
+   s=199,
+   sw=63,
+   smin=199,
+   smax=199,
+   hp=30,
+   san={199},
+   can=1,
+   t=1,
+   tx=0,
+   boss=true
+  }
+  
+  add(enemies,
+   {
+    x=boss.x,
+    y=boss.y,
+    dx=boss.dx,
+    dy=boss.dy,
+    s=164,
+    sw=63,
+    smin=164,
+    smax=164,
+    hp=1,
+    en=7,
+    san={161,162,163,164,163,162},
+    can=1,
+    bossbit=1
+   }
+  )
+    
 end
 
 function do_boss()
- 
+ if boss then
+  boss.t+=1
+  if boss.t==10 then
+   boss.t=0
+   boss.tx+=1
+  end
+  boss.dx=sin(boss.tx/30)
+  move(boss)
+ end
+end
+
+function move_bossbit(bit)
+ bit.x=boss.x
 end
 
 function explode(expx,expy,expspread)
@@ -533,7 +572,9 @@ end
 
 function draw_boss()
  drawsprite(boss)
-
+ if boss then
+  print(boss.dx,20,20,7)
+ end
 end
 
 --hud
