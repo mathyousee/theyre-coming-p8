@@ -13,7 +13,7 @@ __lua__
 function _init()
  _update=update_splash
  _draw=draw_splash
- version="v1.0"
+ version="v2.0"
  music(0)
  cartdata("usee_theyrecoming")
  highscore=dget(0)
@@ -60,9 +60,10 @@ function init_level()
  if lleft>0 then
   nextenemy=30
   levelcountdown=120
- else
-  --init boss
   spawnboss()
+ else
+  --battle the boss
+  boss.hidden=false
   levelcountdown=100
  end
  --mytest=mkobj({s=pw.s,x=p.x,y=p.y})
@@ -278,17 +279,17 @@ function drawsprite(myspr)
  local sprs=myspr.s
  local sprx=myspr.x
  local spry=myspr.y
- if myspr.boss then
-  spr(sprs,sprx,spry,8,2)
- else
-  spr(sprs,sprx,spry)
+	if (not myspr.hidden) then
+	 if myspr.boss then
+	  spr(sprs,sprx,spry,8,2)
+	 else
+	  spr(sprs,sprx,spry)
+	 end 
  end
- 
 end
 
 function pathfind(thing)
- --entype 2 - dxdy at player
- --entype 3 - 
+ 
 end
 
 function move(thing)
@@ -353,9 +354,10 @@ function spawnenemies()
    local newenemy=etypes[myrand]
    add(enemies,
     {
-     x=rnd(120),
+     x=rnd(120)+4,
      y=-10,
-     dx=sin(t/horiz)*(newenemy.dx+lsm),
+--     dx=sin(t/horiz)*(newenemy.dx+lsm),
+     dx=boss.dx,
      dy=newenemy.dy+lsm,
      s=newenemy.s,
      sw=newenemy.sw,
@@ -389,7 +391,8 @@ function spawnboss()
    can=1,
    t=1,
    tx=0,
-   boss=true
+   boss=true,
+   hidden=true
   }
   
   add(enemies,
