@@ -39,7 +39,7 @@ end
 function startgame()
  cls(0)
  t=0
- l=1
+ l=2
  lsm=0
  initplayer()
  finalwave=false
@@ -47,7 +47,10 @@ function startgame()
  set_pweapon(1) --player active weapon
  sw={q=2,d=10} --secondary weapon
  score=0 --score
- lleft=1
+ lleft=0
+ boss_delay=40
+ boss_section={true,true,true,true}
+ wongame=false
  enemies={}
  flashes={}
  pb={}
@@ -59,6 +62,7 @@ end
 function init_level()
  lsm+=.2
  enemies={}
+ nextmeteor=rnd(40)+40
  if lleft==0 then finalwave=true end
 
 -- add(powerups,{x=30,y=30,sp=19,sw=8,utype="pw",id=3})
@@ -152,6 +156,20 @@ function pshoot() --fire weapon
      if b.en==5 then
       gen_powerup(b.x,b.y)
      end
+     
+     if b.bossbit then 
+      boss_delay-=10
+      chutes[b.bossbit].state=false
+      local bits_left=0
+      for bb in all (chutes) do
+       if bb.state==true then bits_left+=1 end
+      end
+      if bits_left==0 then 
+       wongame=true 
+       finale()
+      end
+     end
+     
      
      del(enemies,b)
      del(pb,i)
@@ -291,6 +309,12 @@ function up_bombs()
   end
  end
 end
+
+function finale()
+ explode(boss.x+4,boss.y+4,20)
+ add(flashes,{x=boss.x,y=boss.y,r=4,dr=1,mr=3})
+ 
+end
 -->8
 --tools
 
@@ -365,7 +389,7 @@ end
 
 function spawnenemies()
  if nextenemy<=0 then
-   local myrand=ceil(rnd(5))
+   local myrand=ceil(rnd(mid(2,4,l)))  
    local newenemy=etypes[myrand]
 
    local mydx=0
@@ -393,6 +417,41 @@ function spawnenemies()
  end
  nextenemy-=1
 end
+
+function spawn_meteor()
+  if nextmeteor<=0 then
+   local myrand=5  
+   local newenemy=etypes[myrand]
+
+   local mydx=rnd(3)-2
+   local myx=0
+   
+   if mydx<0 then myx=130 else myx=-12 end
+--   if myrand==4 then mydx=boss.dx end
+
+   add(enemies,
+    {
+     x=myx,
+     y=10,
+--     dx=sin(t/horiz)*(newenemy.dx+lsm),
+     dx=mydx*1.5,
+     dy=newenemy.dy+lsm,
+     s=newenemy.s,
+     sw=newenemy.sw,
+     swc=6,
+     smin=newenemy.smin,
+     smax=newenemy.smax,
+     hp=newenemy.hp,
+     en=myrand,
+     san=newenemy.san,
+     can=1
+    }
+   )
+   nextmeteor=rnd(90)+40
+ end
+ nextmeteor-=1
+end
+
 
 function spawnboss()
 
@@ -519,57 +578,65 @@ end
 
 function do_chutes()
  for i in all (chutes) do
-  i.x=boss.x+3+(i.chute-1)*16
-  
-  --count down to next open
-  if not isopen then i.nextopen-=1 end
-  
-  --open if it's time
-  if not i.isopen and i.nextopen<=0 then
-   i.san={176,176,177,177,178,178,179,179,180,180,180,180}
-   i.isopen=true
-   i.nextclose=90
+  if i.state==true then
+	  i.x=boss.x+3+(i.chute-1)*16
+	  
+	  --count down to next open
+	  if not isopen then i.nextopen-=1 end
+	  
+	  --open if it's time
+	  if not i.isopen and i.nextopen<=0 then
+	   i.san={176,176,177,177,178,178,179,179,180,180,180,180}
+	   i.isopen=true
+	   i.nextclose=ceil(rnd(20))+boss_delay
+	  end
+	
+	  --animate open/close
+	  if i.isopen==true then 
+	   i.nextclose-=1
+
+	   --add enemy before closing
+	   if i.nextclose==15 then
+	    local myrand=ceil(rnd(4))
+	    local newenemy=etypes[myrand]
+	    add(enemies,
+	    {
+	     x=i.x,
+	     y=i.y+2,
+	     dx=0,
+	     dy=newenemy.dy,
+	     s=newenemy.s,
+	     sw=newenemy.sw,
+	     swc=6,
+	     smin=newenemy.smin,
+	     smax=newenemy.smax,
+	     hp=newenemy.hp,
+	     en=myrand,
+	     san=newenemy.san,
+	     can=1
+	    }
+	   )
+	   end
+	
+	   if i.nextclose==0 then
+	    i.can=1
+	    i.san={179,179,178,178,177,177,176,176} 
+	    i.nextopen=60
+	   end
+	   if i.can<#i.san then
+	    animate(i)
+	   else
+	    if i.isopen and i.nextopen>0 then i.isopen=false end 
+	   end
+	  end
+	 else
+	  --bit has been defeated
+	  i.s=32 -- clear sprite
+	 end
+  if boss_section[i]==false then 
+   del(chutes,i)
+   falsecycles+=1 
   end
-
-  --animate open/close
-  if i.isopen==true then 
-   i.nextclose-=1
-
-   --add enemy before closing
-   if i.nextclose==20 then
-    --randomze this
-    local newenemy=etypes[1]
-    add(enemies,
-    {
-     x=i.x,
-     y=i.y+2,
-     dx=0,
-     dy=newenemy.dy,
-     s=newenemy.s,
-     sw=newenemy.sw,
-     swc=6,
-     smin=newenemy.smin,
-     smax=newenemy.smax,
-     hp=newenemy.hp,
-     en=1,
-     san=newenemy.san,
-     can=1
-    }
-   )
-   end
-
-   if i.nextclose==0 then
-    i.can=1
-    i.san={179,179,178,178,177,177,176,176} 
-    i.nextopen=60
-   end
-   if i.can<#i.san then
-    animate(i)
-   else
-    if i.isopen and i.nextopen>0 then i.isopen=false end 
-   end
-  end
-
  end
 end
 
@@ -855,12 +922,17 @@ end
 
 function update_play()
  t+=1
+ if wongame then
+  _update=update_win
+  _draw=draw_play
+ end
  pmove()
  pshoot()
  pflame()
  animatestars()
  do_boss()
  do_chutes()
+ if l>1 then spawn_meteor() end
  do_enemies()
  up_bombs()
  detectpow()
@@ -925,7 +997,6 @@ function update_over()
   dset(0,highscore)
  end
  if btn(⬅️) and btn(➡️) then
---  mode="splash"
   _update=update_splash
   _draw=draw_splash
  end
@@ -937,7 +1008,6 @@ function update_win()
   dset(0,highscore)
  end
  if btn(⬅️) and btn(➡️) then
---  mode="splash"
   _update=update_splash
   _draw=draw_splash
  end 
@@ -969,7 +1039,6 @@ function draw_play()
  end
  ]]--
  print("ens "..#enemies)
-
 end
 
 function draw_level()
@@ -986,9 +1055,9 @@ function draw_level()
   print("radar shows "..lleft.." waves",20,50,12)
   print("find powerups in meteors",12,80,blink())
  elseif l==3 then
-  print("radar shows "..lleft.." waves",20,50,12)
+  print("radar shows "..lleft.." waves",26,50,12)
   print("backup has been delayed",20,80,blink())
-  print("you'll have help soon",33,100,12)
+  print("you'll have help soon",22,100,12)
  elseif l==4 then
   print("multiple incoming threats",10,30,12) 
   print("radar shows "..lleft.." waves",20,50,12)
@@ -1064,7 +1133,7 @@ function initetypes()
  add(etypes,{en=2,s=9,dx=0,dy=2.5,sw=7,hp=1,san={9,9,9,9,10,10,10,10,11,11,11,11,12,12,12,12}})
  add(etypes,{en=3,s=41,dx=0,dy=3.5,sw=7,hp=1,san={41,41,41,41,42,42,42,42,43,43,43,43,44,44,44,44}})
  add(etypes,{en=4,s=184,dx=0,dy=3,sw=7,sh=7,hp=1,san={184,184,184,184,185,185,185,185,186,186,186,186,187,187,187,187}})
- add(etypes,{en=5,s=25,dx=0,dy=1.5,sw=7,sh=7,hp=10,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
+ add(etypes,{en=5,s=25,dx=0,dy=1.5,sw=7,sh=7,hp=6,san={25,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28}})
 end
 
 function mkobj(tmpl)
@@ -1097,6 +1166,7 @@ function spawn_chutes()
 	 myobj.nextopen=i*90
 	 myobj.can=1
 	 myobj.san={176}
+	 myobj.state=true
 	 
 		add(chutes,myobj)
 	
