@@ -8,7 +8,7 @@ __lua__
 function _init()
  _update=update_splash
  _draw=draw_splash
- version="v2.0"
+ version="v2.1"
  music(0)
  cartdata("usee_theyrecoming")
  highscore=dget(0)
@@ -46,6 +46,7 @@ function startgame()
  wongame=false
  enemies={}
  flashes={}
+ chutes={}
  pb={}
  powerups={}
  spawnboss()
@@ -90,12 +91,12 @@ function pmove() --move player
  
  --check left
  if btn(⬅️) then
-  p.dx=-2
+  p.dx=-3
   p.s=1
  end
  --check right
  if btn(➡️) then
-  p.dx=2
+  p.dx=3
   p.s=3
  end
  --check down
@@ -974,6 +975,7 @@ function update_play()
  if p.inv >0 then p.inv-=1 end --invincible countdown
  if p.l<=0 then 
 --  mode="over" 
+  
   _update=update_over
   _draw=draw_over
   sfx(07)
@@ -1014,7 +1016,7 @@ function update_over()
   highscore=score
   dset(0,highscore)
  end
- if btn(⬅️) and btn(➡️) then
+ if btn(🅾️) then
   _update=update_splash
   _draw=draw_splash
  end
@@ -1065,6 +1067,9 @@ end
 function draw_level()
  cls(0)
  drawstarfield()
+ do_shwaves()
+ do_particles()
+ animateflashes()
  drawp()
  drawhud()
  if l==1 then 
@@ -1115,7 +1120,7 @@ function draw_over()
  print(" ")
  if highscore==score then print("new high score!") end
  print("your score was "..score)
- print("press ⬅️➡️ buttons to restart",6,80,blink())
+ print("press 🅾️ button to restart",6,80,blink())
 end
 
 function draw_win()
@@ -1145,8 +1150,12 @@ function initutypes()
  add(utypes,{s=18,utype="pw",sw=8,id=2})
  add(utypes,{s=19,utype="pw",sw=8,id=3})
  add(utypes,{s=20,utype="pw",sw=8,id=4})
- add(utypes,{s=21,utype="sq",sw=8,id=0})
+ add(utypes,{s=21,utype="pw",sw=8,id=0})
  add(utypes,{s=22,utype="life",sw=8,id=0})
+ add(utypes,{s=22,utype="life",sw=8,id=0})
+ add(utypes,{s=22,utype="life",sw=8,id=0})
+ add(utypes,{s=22,utype="life",sw=8,id=0})
+ 
 end
 
 function initplayer()
